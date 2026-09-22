@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request
 from mockData import products
+from dtos import ProductDTO
 app = FastAPI()
 
 # normal path
@@ -13,7 +14,7 @@ def get_products():
     return products
 
 
-@app.get("/product/{product_id}/{date}")
+@app.get("/product/{product_id}")
 def get_one_products(product_id:int):
     ##if product availabe with the id, return product, else return error message.
     for oneproduct in products:
@@ -39,3 +40,34 @@ def greet_user(request:Request):
     return {
         "greet": f"Hello{query_params.get("name")}, your age is{query_params.get("age")}"
     }
+
+##body, headers - request headers, query params
+##Difference type of HTTP Methods, pydantic
+@app.post("/create_products")
+def create_produt(product_data:ProductDTO):
+    product_data = product_data.model_dump()
+    products.append(product_data)
+    return{"status":"product created successfully...", "data":products}
+
+#put method
+@app.put("/update_products{products_id}")
+def update_products(products_data:ProductDTO, products_id:int):
+    for index, oneProducts in enumerate(products): #enumerate  is a method that give index number + data.
+        products[index] = products_data.model_dump
+        return{"status":"product updated successfully.."}
+    return {
+        "error":"product not found for this ID."
+    }
+
+#delete method
+@app.delete("/delete_product/{product_id}")
+def delete_product():
+    for index, one_product in enumerate(products):
+        if one_product.get("id") == product_id:
+            deleted_product = products.pop(index)
+            return {"status":"product deleted successfully..","product":{}}
+    return{
+        "error":"product not found for this id"
+    }
+##how to validate data - DTOS(Data Transfer objects)
+##how to call different HHTP Methoda - Any tools?
